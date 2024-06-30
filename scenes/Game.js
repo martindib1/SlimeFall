@@ -19,22 +19,22 @@ export default class Game extends Phaser.Scene {
 
   preload() {
     // Cargar assets
-    this.load.image("cielo", "./public/fondo.png");
-    this.load.image("plataforma", "./public/piso.png");
-    this.load.spritesheet("personaje", "./public/pj96x124.png", {
+    this.load.image("cielo", "./public/assets/fondo.png");
+    this.load.image("plataforma", "./public/assets/piso.png");
+    this.load.spritesheet("personaje", "./public/assets/pj96x124.png", {
       frameWidth: 96,
       frameHeight: 124
     });
-    this.load.spritesheet("splash", "./public/splash-2Sheet46x41.png", {
+    this.load.spritesheet("splash", "./public/assets/splash-2Sheet46x41.png", {
       frameWidth: 46,
       frameHeight: 41
     });
-    this.load.image("tomate", "./public/slimeprueba.png");
-    this.load.image("cebolla", "./public/slimeprueba2.png");
-    this.load.image("champi", "./public/slimeprueba3.png");
-    this.load.image("anana", "./public/corazon.png");
-    this.load.image("bala", "./public/bombucha.png");
-    this.load.audio('backmusic', ['./public/italiana.mp3']);
+    this.load.image("tomate", "./public/assets/slimeprueba.png");
+    this.load.image("cebolla", "./public/assets/slimeprueba2.png");
+    this.load.image("champi", "./public/assets/slimeprueba3.png");
+    this.load.image("anana", "./public/assets/corazon.png");
+    this.load.image("bala", "./public/assets/bombucha.png");
+    this.load.audio('backmusic', ['./public/assets/italiana.mp3']);
   }
 
   create() {

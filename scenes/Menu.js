@@ -5,8 +5,8 @@ export default class Menu extends Phaser.Scene {
   
     preload() {
       // Cargar assets
-      this.load.image("cielo", "./public/fondo.png");
-      this.load.image("boton", "./public/boton.png"); // Cargar la imagen del botón
+      this.load.image("cielo", "./public/assets/fondo.png");
+      this.load.image("boton", "./public/assets/boton.png"); // Cargar la imagen del botón
     }
   
     create() {
