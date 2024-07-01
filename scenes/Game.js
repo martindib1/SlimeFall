@@ -40,7 +40,7 @@ export default class Game extends Phaser.Scene {
     this.load.image("cajavida", "./public/vidas.png");
     this.load.image("cajabalas", "./public/balas.png");
     this.load.image("baldebalas", "./public/baldebombuchas.png");
-    this.load.audio('backmusic', ['./public/italiana.mp3']);
+    this.load.audio('backmusic', ['./public/slimefallmusic.mp3']);
   }
 
   create() {
