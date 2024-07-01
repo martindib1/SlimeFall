@@ -10,20 +10,26 @@ export default class End extends Phaser.Scene {
       console.log(this.gameOver);
     }
   
+    preload() {
+      this.load.image("gover", "./public/gameover.png");
+    }
+
     create() {
+
+      this.add.image(600, 300, "gover");
+
       // Tecla R para reiniciar
       this.r = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
   
-      // Mostrar mensaje de Game Over o Victoria
-      this.add.text(555, 300, this.gameOver ? "Game Over" : "You Win", {
-        fontSize: "40px",
-        color: "#ffffff",
-      }).setOrigin(0.5);
-  
       // Mostrar puntaje
-      this.add.text(555, 350, `Score: ${this.score}`, {
+      this.add.text(600, 360, `PUNTOS: ${this.score}`, {
         fontSize: "32px",
-        color: "#ffffff",
+        color: "#000000",
+      }).setOrigin(0.5);
+      // Mostrar puntaje
+      this.add.text(600, 400, `Presiona "R" para reiniciar`, {
+        fontSize: "20px",
+        color: "#000000",
       }).setOrigin(0.5);
     }
   

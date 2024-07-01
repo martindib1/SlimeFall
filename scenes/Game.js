@@ -5,15 +5,16 @@ export default class Game extends Phaser.Scene {
 
   init() {
     this.gameOver = false;
-    this.timer = 25;
     this.score = 0;
     this.life = 3;
+    this.balasDisponibles = 10; // Nueva propiedad para almacenar el número de balas disponibles
     this.lastDirection = 'right'; // Nueva propiedad para rastrear la última dirección
     this.shapes = {
-      "tomate": { points: 10, count: 0 },
-      "champi": { points: 20, count: 0 },
-      "cebolla": { points: 30, count: 0 },
-      "anana": { points: 10, count: 0 }
+      "slimeverde": { points: 20,},
+      "slimenaranja": { points: 20,},
+      "slimerosa": { points: 20,},
+      "slimerojo": { points: 20,},
+      "slimevioleta": { points: 20,}
     };
   }
 
@@ -29,11 +30,16 @@ export default class Game extends Phaser.Scene {
       frameWidth: 46,
       frameHeight: 41
     });
-    this.load.image("tomate", "./public/slimeprueba.png");
-    this.load.image("cebolla", "./public/slimeprueba2.png");
-    this.load.image("champi", "./public/slimeprueba3.png");
-    this.load.image("anana", "./public/corazon.png");
-    this.load.image("bala", "./public/bombucha.png");
+    this.load.image("slimeverde", "./public/slimeverde.png");
+    this.load.image("slimerosa", "./public/slimerosa.png");
+    this.load.image("slimerojo", "./public/slimerojo.png");
+    this.load.image("slimenaranja", "./public/slimenaranja.png");
+    this.load.image("slimevioleta", "./public/slimevioleta.png");
+    this.load.image("bala", "./public/bombucha2.png");
+    this.load.image("cajapuntos", "./public/puntos.png");
+    this.load.image("cajavida", "./public/vidas.png");
+    this.load.image("cajabalas", "./public/balas.png");
+    this.load.image("baldebalas", "./public/baldebombuchas.png");
     this.load.audio('backmusic', ['./public/italiana.mp3']);
   }
 
@@ -90,7 +96,6 @@ export default class Game extends Phaser.Scene {
     });
 
     //Definir animacion del splash
-
     this.anims.create({
       key: 'endsplash',
       frames: this.anims.generateFrameNumbers('splash', { start: 0, end: 2 }),
@@ -117,6 +122,14 @@ export default class Game extends Phaser.Scene {
       loop: true,
     });
 
+    // Evento cada 5 segundos para crear balde de balas
+    this.time.addEvent({
+      delay: 7000,
+      callback: this.createBaldeBalas,
+      callbackScope: this,
+      loop: true,
+    });
+
     // Tecla R para reiniciar
     this.r = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 
@@ -129,25 +142,32 @@ export default class Game extends Phaser.Scene {
     });
 
     // Mostrar puntaje y tiempo restante
-    this.scoreText = this.add.text(10, 50, `Puntaje: ${this.score} / T: ${this.shapes["tomate"].count} / H: ${this.shapes["champi"].count} / C: ${this.shapes["cebolla"].count} / A: ${this.shapes["anana"].count}`,{
+    this.scoreText = this.add.text(10, 50, `------- ${this.score} `,{
       fill: "#000000",
     });
-    this.timerText = this.add.text(10, 10, `Tiempo restante: ${this.timer}`, {
-      fontSize: "32px",
+    this.lifeText = this.add.text(10, 80, `------ ${this.life}`,{
       fill: "#000000",
     });
-    this.lifeText = this.add.text(10, 80, `Vidas: ${this.life}`,{
+    this.balasText = this.add.text(15, 25, `----- ${this.balasDisponibles}`, {
       fill: "#000000",
-    })
-    
+    });
+
+    this.x = this.add.image(43, 55, "cajapuntos");
+    this.x = this.add.image(40, 25, "cajabalas");
+    this.x = this.add.image(40, 85, "cajavida");
   }
 
   collectItem(personaje, recolectable) {
-    this.life -= recolectable.life; // Restar vidas
+    if (recolectable.texture.key === 'baldebalas') {
+      this.balasDisponibles += 20; // Aumentar 20 balas al recoger el balde de balas
+      this.balasText.setText(`Balas: ${this.balasDisponibles}`);
+    } else {
+      this.life -= recolectable.life; // Restar vidas
+      this.lifeText.setText(`------ ${this.life}`); // Actualizar texto de vidas
+    }
+
     recolectable.destroy(); // Destruir el recolectable
   
-    this.lifeText.setText(`Vidas: ${this.life}`); // Actualizar texto de vidas
-    
     // Verificar si se acabaron las vidas
     if (this.life <= 0) {
       this.gameOver = true;
@@ -158,43 +178,39 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-
-
-  checkWin() {
-    const cumplePuntos = this.score >= 100;
-    const cumpleFiguras = this.shapes["tomate"].count >= 3 && this.shapes["champi"].count >= 3 && this.shapes["cebolla"].count >= 3;
-
-    if (cumplePuntos && cumpleFiguras) {
-      this.scene.start("end", {
-        score: this.score,
-        gameOver: this.gameOver,
-      });
-    }
-  }
-
+  
   onSecond() {
     if (this.gameOver) return;
   
-    const tipos = ["tomate", "champi", "cebolla", "anana"];
+    const tipos = ["slimeverde", "slimenaranja", "slimerosa", "slimevioleta","slimerojo"];
     const tipo = Phaser.Math.RND.pick(tipos);
   
     let recolectable = this.recolectables.create(Phaser.Math.Between(15, 1150), 0, tipo);
     
     // Asignar puntos y vidas al recolectable
-    recolectable.points = this.shapes[tipo].points;
+    recolectable.points = this.shapes[tipo]?.points || 0;
     recolectable.life = 1; // Cantidad de vidas que se restan al recogerlo
     
     this.physics.add.collider(recolectable, this.recolectables);
     const rebote = Phaser.Math.FloatBetween(0.4, 0.8);
     recolectable.setBounceY(rebote);
-    recolectable.setData("points", this.shapes[tipo].points);
+    recolectable.setData("points", this.shapes[tipo]?.points || 0);
   }
   
+  createBaldeBalas() {
+    if (this.gameOver) return;
+    
+    let recolectable = this.recolectables.create(Phaser.Math.Between(15, 1150), 0, 'baldebalas');
+    
+    recolectable.life = 0; // No restar vida al recoger el balde de balas
+    recolectable.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+  }
+
   onRecolectableBounced(platforms, recolectable) {
     let points = recolectable.getData("points");
     points -= 5;
     recolectable.setData("points", points);
-    if (points <= 0) {
+    if (points <= 0 && recolectable.texture.key !== 'baldebalas') {
       recolectable.destroy();
     }
   }
@@ -202,48 +218,45 @@ export default class Game extends Phaser.Scene {
   disparar(pointer) {
     if (this.gameOver) return;
 
-    // Crear bala en la posición del personaje
-    let bala = this.balas.create(this.personaje.x, this.personaje.y, 'bala');
-    this.physics.add.collider(bala, this.plataformas, this.destruirBala, null, this);
-    this.physics.add.collider(bala, this.recolectables, this.destruirRecolectable, null, this);
+    //Ver las balas que tiene disponibles y si tiene las resta
+    if (this.balasDisponibles > 0) {
+      this.balasDisponibles -= 1;
+      this.balasText.setText(`Balas: ${this.balasDisponibles}`);
 
-    // Calcular dirección de la bala hacia el mouse
-    let angle = Phaser.Math.Angle.Between(this.personaje.x, this.personaje.y, pointer.worldX, pointer.worldY);
-    let velocity = this.physics.velocityFromRotation(angle, 600);
-    bala.setVelocity(velocity.x, velocity.y);
+      // Crear bala en la posición del personaje
+      let bala = this.balas.create(this.personaje.x, this.personaje.y, 'bala');
+      this.physics.add.collider(bala, this.plataformas, this.destruirBala, null, this);
+      this.physics.add.collider(bala, this.recolectables, this.destruirRecolectable, null, this);
+
+      // Calcular dirección de la bala hacia el mouse
+      let angle = Phaser.Math.Angle.Between(this.personaje.x, this.personaje.y, pointer.worldX, pointer.worldY);
+      let velocity = this.physics.velocityFromRotation(angle, 600);
+      bala.setVelocity(velocity.x, velocity.y);
+    }
   }
 
   destruirRecolectable(bala, recolectable) {
-    bala.destroy();
-    const nombreFig = recolectable.texture.key;
-    this.score += recolectable.getData("points");
-    this.shapes[nombreFig].count += 1;
-    recolectable.destroy();
-    this.scoreText.setText(`Puntaje: ${this.score} / T: ${this.shapes["tomate"].count} / H: ${this.shapes["champi"].count} / C: ${this.shapes["cebolla"].count} / A: ${this.shapes["anana"].count}`);
-    this.checkWin();
-    this.splash =  this.physics.add.sprite(bala.x, bala.y, "endsplash")
-    this.splash.body.allowGravity = false;
-    this.splash.anims.play("endsplash").on("animationcomplete", ()=>{
-    this.splash.destroy()
-    })
+    // Verificar si el recolectable no es un balde de balas antes de destruirlo
+    if (recolectable.texture.key !== 'baldebalas') {
+      bala.destroy();
+      this.score += recolectable.getData("points");
+      recolectable.destroy();
+      this.scoreText.setText(`------- ${this.score} `);
+      this.splash =  this.physics.add.sprite(bala.x, bala.y, "endsplash");
+      this.splash.body.allowGravity = false;
+      this.splash.anims.play("endsplash").on("animationcomplete", ()=>{
+        this.splash.destroy();
+      });
+    }
   }
-
-
 
   destruirBala(bala, plataformas) {
     bala.destroy();
-  }
-
-  updateTimer() {
-    this.timer -= 1;
-    this.timerText.setText(`Tiempo restante: ${this.timer}`);
-    if (this.timer === 0) {
-      this.gameOver = true;
-      this.scene.start("end", {
-        score: this.score,
-        gameOver: this.gameOver,
-      });
-    }
+    this.splash =  this.physics.add.sprite(bala.x, bala.y, "endsplash");
+    this.splash.body.allowGravity = false;
+    this.splash.anims.play("endsplash").on("animationcomplete", ()=>{
+      this.splash.destroy();
+    });
   }
 
   update() {
@@ -267,11 +280,6 @@ export default class Game extends Phaser.Scene {
     if (this.gameOver && this.r.isDown) {
       this.scene.restart();
       return;
-    }
-
-    if (this.gameOver) {
-      this.physics.pause();
-      this.timerText.setText("Game Over");
     }
 
     // Reiniciar la música al presionar la tecla "R"
