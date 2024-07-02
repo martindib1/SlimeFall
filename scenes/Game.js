@@ -40,7 +40,7 @@ export default class Game extends Phaser.Scene {
     this.load.image("cajavida", "./public/vidas.png");
     this.load.image("cajabalas", "./public/balas.png");
     this.load.image("baldebalas", "./public/baldebombuchas.png");
-    this.load.audio('backmusic', ['./public/slimefallmusic.mp3']);
+    this.load.audio('backmusic', ['./public/gamemusic.mp3']);
   }
 
   create() {
@@ -159,7 +159,7 @@ export default class Game extends Phaser.Scene {
 
   collectItem(personaje, recolectable) {
     if (recolectable.texture.key === 'baldebalas') {
-      this.balasDisponibles += 20; // Aumentar 20 balas al recoger el balde de balas
+      this.balasDisponibles += 10; // Aumentar 20 balas al recoger el balde de balas
       this.balasText.setText(`Balas: ${this.balasDisponibles}`);
     } else {
       this.life -= recolectable.life; // Restar vidas
@@ -171,6 +171,7 @@ export default class Game extends Phaser.Scene {
     // Verificar si se acabaron las vidas
     if (this.life <= 0) {
       this.gameOver = true;
+      this.backgroundMusic.stop(); // Detener la música de fondo
       this.scene.start("end", {
         score: this.score,
         gameOver: this.gameOver,
@@ -280,15 +281,6 @@ export default class Game extends Phaser.Scene {
     if (this.gameOver && this.r.isDown) {
       this.scene.restart();
       return;
-    }
-
-    // Reiniciar la música al presionar la tecla "R"
-    if (Phaser.Input.Keyboard.JustDown(this.r)) {
-      if (this.backgroundMusic) {
-        this.backgroundMusic.stop();
-      }
-      this.backgroundMusic = this.sound.add('backmusic', { loop: true, volume: 0.2 });
-      this.backgroundMusic.play();
-    }
+    } 
   }
 }
